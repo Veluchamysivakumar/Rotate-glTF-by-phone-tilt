@@ -36,6 +36,7 @@
     let model;
     loader.load("https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf", function(gltf) {
       model = gltf.scene;
+      model.scale.set(2,2,2);
       scene.add(model);
     });
 
@@ -84,6 +85,7 @@
   </script>
 </body>
 </html>
+
 
 
 
