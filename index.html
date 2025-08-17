@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>glTF Tilt Control</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    #btn {
+      position: absolute; top: 10px; left: 10px;
+      background: white; padding: 10px; border-radius: 8px;
+      border: 1px solid #ccc; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button id="btn">Enable Motion</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <script>
+    let scene = new THREE.Scene();
+    let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    let renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Lighting
+    let light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(1,1,1);
+    scene.add(light);
+
+    // Load GLTF
+    let loader = new THREE.GLTFLoader();
+    let model;
+    loader.load("cube rotate test.gltf", function(gltf) {
+      model = gltf.scene;
+      scene.add(model);
+    });
+
+    camera.position.z = 3;
+
+    // Motion control
+    let tiltX = 0, tiltY = 0;
+    function handleOrientation(event) {
+      tiltX = event.gamma;  // left/right
+      tiltY = event.beta;   // front/back
+    }
+
+    // iOS requires user permission
+    document.getElementById("btn").addEventListener("click", () => {
+      if (typeof DeviceOrientationEvent.requestPermission === "function") {
+        DeviceOrientationEvent.requestPermission().then(response => {
+          if (response === "granted") {
+            window.addEventListener("deviceorientation", handleOrientation, true);
+          }
+        });
+      } else {
+        // Android / non-iOS
+        window.addEventListener("deviceorientation", handleOrientation, true);
+      }
+      document.getElementById("btn").style.display = "none";
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (model) {
+        // Map tilt to rotation
+        model.rotation.y = tiltX * Math.PI / 180;  // left/right
+        model.rotation.x = tiltY * Math.PI / 180;  // forward/back
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
