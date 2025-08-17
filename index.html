@@ -34,7 +34,7 @@
     // Load GLTF
     let loader = new THREE.GLTFLoader();
     let model;
-    loader.load("cube rotate test.glb", function(gltf) {
+    loader.load("https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf", function(gltf) {
       model = gltf.scene;
       scene.add(model);
     });
@@ -84,6 +84,7 @@
   </script>
 </body>
 </html>
+
 
 
 
